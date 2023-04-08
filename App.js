@@ -12,9 +12,7 @@ import { useQueue } from './app/components/Queue';
 const Stack = createStackNavigator();
 
 export default function App() {
-  const onClick = () => {
-    alert("You are gay")
-  }
+  
 
   const {queue, enqueue, dequeue} = useQueue()
 
