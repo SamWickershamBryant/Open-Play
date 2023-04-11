@@ -42,7 +42,7 @@ const HomeScreen = ({ navigation, queue }) => {
               return
             }
             queue.enqueue(name)
-            alert("You have been added, " + name + ". Please wait to be assigned to the next free court.")
+            //alert("You have been added, " + name + ". Please wait to be assigned to the next free court.")
             setName('')
         }}
         />

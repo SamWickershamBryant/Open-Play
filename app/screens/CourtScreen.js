@@ -36,7 +36,8 @@ const CourtScreen = ({ navigation, queue }) => {
     };
 
     const handleCourtFinish = (court) => {
-      console.log(court.name)
+      console.log(court)
+
     }
 
     const renderCourt = ({ item }) => {
@@ -71,11 +72,14 @@ const CourtScreen = ({ navigation, queue }) => {
       return (
         
 
-        <TouchableOpacity style={styles.court} onPress={() => handleCourtFinish(item)}>
+        <TouchableOpacity style={styles.court}>
           <Text style={styles.courtName}>{item.name}</Text>
           <View style={styles.playersGrid}>{renderPlayersGrid()}</View>
           <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveCourt(item.name)}>
             <Text style={styles.removeButtonText}>X</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.finishButton} onPress={() => handleCourtFinish(item)}>
+          <Text style={styles.removeButtonText}>Finish Game</Text>
           </TouchableOpacity>
         </TouchableOpacity>
         
@@ -147,7 +151,7 @@ const CourtScreen = ({ navigation, queue }) => {
       borderRadius: 8,
       padding: 16,
       margin: 8,
-      minHeight: 150,
+      minHeight: 250,
       minWidth: '45%',
       maxWidth: '45%',
       position: 'relative',
@@ -192,6 +196,17 @@ const CourtScreen = ({ navigation, queue }) => {
       justifyContent: 'center',
       alignItems: 'center',
       width: 30,
+      height: 30,
+    },
+    finishButton: {
+      position: 'absolute',
+      bottom: 8,
+      left: 8,
+      backgroundColor: 'green',
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: "25%",
       height: 30,
     },
     removeButtonText: {
