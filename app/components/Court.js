@@ -2,19 +2,20 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export class Court {
-    constructor(name, players = []) {
+    constructor(name, players = [], inProgress = true) {
         this.name = name;
         this.players = players
+        this.inProgress = inProgress
     }
     addPlayer(playerName) {
         if (this.players.length < 4) {
-          this.players.push(playerName);
+          this.players.push({name:playerName,winner:false});
           return true;
         }
         return false;
       }
     removePlayer(playerName) {
-    const index = this.players.indexOf(playerName);
+    const index = this.players.indexOf((ply) => ply.name === playerName);
     if (index > -1) {
         this.players.splice(index, 1);
         return true;
@@ -43,7 +44,7 @@ export class Court {
         try {
           const courtsJson = await AsyncStorage.getItem('courts');
           if (courtsJson) {
-            const courts = JSON.parse(courtsJson).map(courtJson => new Court(courtJson.name, courtJson.players));
+            const courts = JSON.parse(courtsJson).map(courtJson => new Court(courtJson.name, courtJson.players, courtJson.inProgress));
             return courts;
           } else {
             return [];

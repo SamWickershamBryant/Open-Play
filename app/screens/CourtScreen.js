@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { StyleSheet, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button } from 'react-native';
+import { StyleSheet, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch } from 'react-native';
 import Title2 from '../components/Title2';
 import { useQueue } from '../components/Queue';
 import { Court } from '../components/Court';
@@ -19,7 +19,7 @@ const CourtScreen = ({ navigation, queue }) => {
     }, [])
 
     const handleAddCourt = async () => {
-      const court = new Court(newCourtName);
+      const court = new Court(newCourtName, [{name:"sam",winner:false},{name:"sam2",winner:false}], false);
       const success = await court.save();
       if (success) {
         setCourts([...courts, court]);
@@ -40,6 +40,50 @@ const CourtScreen = ({ navigation, queue }) => {
 
     }
 
+    const handleCourtStart = async (cour) => {
+      if (cour.players.length < 4){
+        alert("Please wait for players to be assigned to this court.")
+        return
+      }
+      var i = courts.findIndex(court => court.name === cour.name)
+      var newCourt = courts[i]
+      newCourt.inProgress = true
+      setCourts((prevCourts) => {
+        const newCourts = [...prevCourts]; // create a copy of the courts array
+        newCourts[i] = newCourt; // replace the old court object with the updated one
+        return newCourts; // set the state with the new array
+      });
+      await newCourt.save()
+    }
+
+    const setWinners = async (cour, ind) => {
+      var i = courts.findIndex(court => court.name === cour.name)
+      var newCourt = courts[i]
+      newCourt.players[ind * 2].winner = !newCourt.players[ind * 2].winner
+      newCourt.players[ind * 2 + 1].winner = newCourt.players[ind * 2].winner
+      setCourts((prevCourts) => {
+        const newCourts = [...prevCourts]; // create a copy of the courts array
+        newCourts[i] = newCourt; // replace the old court object with the updated one
+        return newCourts; // set the state with the new array
+      });
+      var flip = ind ^ 1
+      if (newCourt.players[ind * 2].winner && newCourt.players[flip * 2].winner){
+        setWinners(cour,flip)
+
+      }
+      await newCourt.save()
+      
+    }
+
+    const areWinners = (cour, ind) => {
+      if (!cour.inProgress || cour.players.length < 4){
+        return false
+      }
+      var i = courts.findIndex(court => court.name === cour.name)
+      var viewCourt = courts[i]
+      return viewCourt.players[ind * 2].winner
+    }
+
     const renderCourt = ({ item }) => {
       const renderPlayersGrid = () => {
         if (item.players.length === 0) {
@@ -52,17 +96,40 @@ const CourtScreen = ({ navigation, queue }) => {
             const playerIndex = i * 2 + j;
             if (playerIndex < item.players.length) {
               cells.push(
-                <Text key={playerIndex} style={styles.playerName}>
-                  - {item.players[playerIndex]}
+                <Text key={playerIndex} style={item.players[playerIndex].winner ? styles.playerNameWinner : styles.playerName}>
+                  - {item.players[playerIndex].name}
                 </Text>
               );
             } else {
-              cells.push(<View key={playerIndex} style={styles.playerCell} />);
+              cells.push(<Text key={playerIndex} style={styles.playerName}>
+                - 
+              </Text>);
             }
           }
           rows.push(
+            
             <View key={i} style={styles.playersRow}>
+              <Text style={styles.playerHeading}>Team {i + 1} {areWinners(item,i) ? "(Winners)" : ""}</Text>
               {cells}
+              <View style={
+                {
+
+                  width:'100%',
+                  flexDirection:'row',
+                  alignItems:'center',
+                  justifyContent:'center',
+                  marginTop:7
+                
+              }
+              }>
+              <Text>winner: </Text><Switch
+              trackColor={{false: '#767577', true: '#81b0ff'}}
+              thumbColor={true ? '#f5dd4b' : '#f4f3f4'}
+              ios_backgroundColor="#3e3e3e"
+              onValueChange={() => setWinners(item,i)}
+              value={areWinners(item,i)}
+              />
+              </View>
             </View>
           );
         }
@@ -73,14 +140,22 @@ const CourtScreen = ({ navigation, queue }) => {
         
 
         <TouchableOpacity style={styles.court}>
+          
           <Text style={styles.courtName}>{item.name}</Text>
+          
           <View style={styles.playersGrid}>{renderPlayersGrid()}</View>
           <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveCourt(item.name)}>
             <Text style={styles.removeButtonText}>X</Text>
           </TouchableOpacity>
+          {item.inProgress ? 
           <TouchableOpacity style={styles.finishButton} onPress={() => handleCourtFinish(item)}>
           <Text style={styles.removeButtonText}>Finish Game</Text>
+          </TouchableOpacity> :
+          <TouchableOpacity style={styles.startButton} onPress={() => handleCourtStart(item)}>
+          <Text style={styles.removeButtonText}>Start Game</Text>
           </TouchableOpacity>
+        }
+          
         </TouchableOpacity>
         
         
@@ -149,34 +224,48 @@ const CourtScreen = ({ navigation, queue }) => {
       flex: 1,
       backgroundColor: '#fff',
       borderRadius: 8,
-      padding: 16,
+      padding: 8,
       margin: 8,
       minHeight: 250,
       minWidth: '45%',
       maxWidth: '45%',
       position: 'relative',
+      alignItems:'center',
     },
     
     courtName: {
-      fontSize: 24,
+      fontSize: 28,
       fontWeight: 'bold',
-      marginBottom: 8,
+      marginBottom: 0,
+      borderBottomWidth: 1,
+      borderBottomColor: 'red',
+      
+      
     },
+   
     playersGrid: {
       flex: 1,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      width:"50%",
-      marginHorizontal:10,
-      marginTop:10,
+      width:"100%",
+      
+      marginHorizontal:0,
+      marginTop:0,
     },
     playersColumn: {
       flex: 1,
       flexDirection: 'column',
       justifyContent: 'space-between',
+      
       alignItems: 'center',
-      width: '50%',
+      
+      
+    },
+    playersRow: {
+      flex:1,
+      flexDirection:'column',
+      alignItems:'center',
       
     },
     playerCell: {
@@ -184,8 +273,18 @@ const CourtScreen = ({ navigation, queue }) => {
       margin: 4,
     },
     playerName: {
+      
+      fontSize: 18,
+      
+    },
+    playerHeading: {
+      fontSize:22,
+      fontWeight:'bold',
+    },
+    playerNameWinner: {
       fontSize: 18,
       fontWeight: 'bold',
+      color: 'green',
     },
     removeButton: {
       position: 'absolute',
@@ -199,6 +298,17 @@ const CourtScreen = ({ navigation, queue }) => {
       height: 30,
     },
     finishButton: {
+      position: 'absolute',
+      bottom: 8,
+      left: 8,
+      backgroundColor: 'red',
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: "25%",
+      height: 30,
+    },
+    startButton: {
       position: 'absolute',
       bottom: 8,
       left: 8,
