@@ -16,10 +16,11 @@ const CourtScreen = ({ navigation, queue }) => {
         setCourts(courts);
       };
       loadCourts();
+      console.log("CHECK")
     }, [])
 
     const handleAddCourt = async () => {
-      const court = new Court(newCourtName, [{name:"sam",winner:false},{name:"sam2",winner:false}], false);
+      const court = new Court(newCourtName, [{name:"sam",winner:false},{name:"sam2",winner:false},{name:"sam3",winner:false},{name:"sam4",winner:false}], true);
       const success = await court.save();
       if (success) {
         setCourts([...courts, court]);
@@ -36,6 +37,23 @@ const CourtScreen = ({ navigation, queue }) => {
     };
 
     const handleCourtFinish = (court) => {
+      
+      for (let index = court.players.length - 1; index >= 0; index--){
+        console.log(index)
+        let player = court.players[index]
+        if (!player.winner) {
+          // Not a winner, remove and add back to queue...
+          const rName = player.name
+          
+          court.removePlayer(rName)
+          queue.enqueue(rName)
+        } else{
+          player.winner = false
+        }
+
+      }
+      court.inProgress = false
+      court.save()
       console.log(court)
 
     }
@@ -76,7 +94,7 @@ const CourtScreen = ({ navigation, queue }) => {
     }
 
     const areWinners = (cour, ind) => {
-      if (!cour.inProgress || cour.players.length < 4){
+      if (!cour.inProgress || cour.players.length < 4 || ind > 1){
         return false
       }
       var i = courts.findIndex(court => court.name === cour.name)

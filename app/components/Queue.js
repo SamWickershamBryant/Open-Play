@@ -15,8 +15,8 @@ export const useQueue = () => {
     
   
     const enqueue = useCallback((item) => {
-      setQueue([...queue, item]);
-    }, [queue]); // dependencies for callback
+      setQueue(prevQueue => [...prevQueue, item]);
+    }, []); // dependencies for callback
   
     const dequeue = useCallback(() => {
       if (queue.length === 0) {

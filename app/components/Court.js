@@ -15,7 +15,8 @@ export class Court {
         return false;
       }
     removePlayer(playerName) {
-    const index = this.players.indexOf((ply) => ply.name === playerName);
+    const index = this.players.map(plr => plr.name).indexOf(playerName)
+    
     if (index > -1) {
         this.players.splice(index, 1);
         return true;
