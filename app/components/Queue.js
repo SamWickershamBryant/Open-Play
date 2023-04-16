@@ -6,7 +6,7 @@ export const useQueue = () => {
 
     useEffect(() => {
       //console.log("ENTRY")
-      console.log("SOMETHING CHANGED?")
+      //console.log("SOMETHING CHANGED?")
     
       return () => {
         
@@ -18,14 +18,23 @@ export const useQueue = () => {
       setQueue(prevQueue => [...prevQueue, item]);
     }, []); // dependencies for callback
   
-    const dequeue = useCallback(() => {
-      if (queue.length === 0) {
-        return null;
-      }
-      const item = queue[0];
-      setQueue(queue.slice(1));
-      return item;
+    const dequeue = useCallback((amt) => {
+      if (queue.length < amt) return;
+    
+      const playersToDequeue = queue.slice(0, amt);
+    
+      setQueue((prevQueue) => {
+        // Update the queue with the remaining players
+        const updatedQueue = prevQueue.slice(amt);
+    
+        // Save the updated queue
+        return updatedQueue;
+      });
+    
+      // Return the dequeued players
+      return playersToDequeue;
     }, [queue]);
+    
   
     return { queue, enqueue, dequeue };
   };

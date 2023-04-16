@@ -19,6 +19,52 @@ const CourtScreen = ({ navigation, queue }) => {
       console.log("CHECK")
     }, [])
 
+    const assignPlayers = async (cour) => {
+      console.log(cour)
+      const availablePlayers = 4 - cour.players.length;
+      if (cour.players.length >= 4) {
+        alert("This court is already full.");
+        return;
+      }
+      if (queue.queue.length < availablePlayers) {
+        alert("Not enough players in the queue to fill the court.");
+        return;
+      }
+    
+      let updatedPlayers = cour.players;
+      
+      var newPlayers = queue.dequeue(availablePlayers)
+      console.log(newPlayers)
+      for (var i in newPlayers){
+        updatedPlayers.push({name:newPlayers[i],winner:false})
+      }
+    
+      var updatedCourt = cour
+      updatedCourt.players = updatedPlayers
+      
+      
+      setCourts((prevCourts) => {
+        const newCourts = [...prevCourts];
+        const courtIndex = prevCourts.findIndex(court => court.name === cour.name);
+        newCourts[courtIndex] = updatedCourt;
+        return newCourts;
+      })
+      await updatedCourt.save();
+        
+    };
+    
+
+    const courtsThatNeedPlayers = (l) => {
+      var ret = []
+      for (c in courts){
+        let cPlayers = courts[c].players
+        if (cPlayers.length < l){
+          ret.push(courts[c])
+        }
+      }
+      return ret
+    }
+
     const handleAddCourt = async () => {
       const court = new Court(newCourtName, [{name:"sam",winner:false},{name:"sam2",winner:false},{name:"sam3",winner:false},{name:"sam4",winner:false}], true);
       const success = await court.save();
@@ -75,6 +121,7 @@ const CourtScreen = ({ navigation, queue }) => {
     }
 
     const setWinners = async (cour, ind) => {
+      if (cour.players.length < 4) return
       var i = courts.findIndex(court => court.name === cour.name)
       var newCourt = courts[i]
       newCourt.players[ind * 2].winner = !newCourt.players[ind * 2].winner
@@ -169,9 +216,14 @@ const CourtScreen = ({ navigation, queue }) => {
           <TouchableOpacity style={styles.finishButton} onPress={() => handleCourtFinish(item)}>
           <Text style={styles.removeButtonText}>Finish Game</Text>
           </TouchableOpacity> :
+          <>
+          <TouchableOpacity style={styles.assignButton} onPress={() => assignPlayers(item)}>
+          <Text style={styles.buttonText}>Assign Players</Text>
+        </TouchableOpacity>
           <TouchableOpacity style={styles.startButton} onPress={() => handleCourtStart(item)}>
           <Text style={styles.removeButtonText}>Start Game</Text>
           </TouchableOpacity>
+          </>
         }
           
         </TouchableOpacity>
@@ -338,6 +390,22 @@ const CourtScreen = ({ navigation, queue }) => {
       height: 30,
     },
     removeButtonText: {
+      color: '#FFFFFF',
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    assignButton: {
+      position: 'absolute',
+      bottom: 8,
+      right: 8,
+      backgroundColor: 'orange',
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: "30%",
+      height: 30,
+    },
+    buttonText: {
       color: '#FFFFFF',
       fontSize: 14,
       fontWeight: 'bold',

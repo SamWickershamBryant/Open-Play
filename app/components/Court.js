@@ -41,6 +41,8 @@ export class Court {
         }
       }
 
+      
+
       static async getAll() {
         try {
           const courtsJson = await AsyncStorage.getItem('courts');
