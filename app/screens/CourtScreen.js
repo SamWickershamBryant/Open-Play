@@ -52,6 +52,28 @@ const CourtScreen = ({ navigation, queue }) => {
       await updatedCourt.save();
         
     };
+
+    const substitutePlayer = async (cour, playerIndex) => {
+      if (cour.inProgress) {
+        alert("Cannot substitute players after the game has started.");
+        return;
+      }
+    
+      const playerToRemove = cour.players[playerIndex];
+      queue.enqueue(playerToRemove.name);
+    
+      var updatedCourt = cour//{ ...cour, players: cour.players.filter((_, index) => index !== playerIndex) };
+      updatedCourt.players = cour.players.filter((_, index) => index !== playerIndex)
+      const success = await updatedCourt.save();
+      if (success) {
+        setCourts((prevCourts) => {
+          const newCourts = [...prevCourts];
+          const courtIndex = prevCourts.findIndex(court => court.name === cour.name);
+          newCourts[courtIndex] = updatedCourt;
+          return newCourts;
+        });
+      }
+    };
     
 
     const courtsThatNeedPlayers = (l) => {
@@ -66,7 +88,7 @@ const CourtScreen = ({ navigation, queue }) => {
     }
 
     const handleAddCourt = async () => {
-      const court = new Court(newCourtName, [{name:"sam",winner:false},{name:"sam2",winner:false},{name:"sam3",winner:false},{name:"sam4",winner:false}], true);
+      const court = new Court(newCourtName);
       const success = await court.save();
       if (success) {
         setCourts([...courts, court]);
@@ -151,9 +173,7 @@ const CourtScreen = ({ navigation, queue }) => {
 
     const renderCourt = ({ item }) => {
       const renderPlayersGrid = () => {
-        if (item.players.length === 0) {
-          return null;
-        }
+        
         const rows = [];
         for (let i = 0; i < 2; i++) {
           const cells = [];
@@ -161,21 +181,37 @@ const CourtScreen = ({ navigation, queue }) => {
             const playerIndex = i * 2 + j;
             if (playerIndex < item.players.length) {
               cells.push(
-                <Text key={playerIndex} style={item.players[playerIndex].winner ? styles.playerNameWinner : styles.playerName}>
+                
+                <View key={playerIndex} style={styles.nameContainer}>
+                <Text  style={item.players[playerIndex].winner ? styles.playerNameWinner : styles.playerName}>
                   - {item.players[playerIndex].name}
+                  
                 </Text>
+                {!item.inProgress && (
+                  <TouchableOpacity style={styles.substituteButton} onPress={() => substitutePlayer(item, playerIndex)}>
+                    <Text style={styles.buttonText}>Substitute</Text>
+                  </TouchableOpacity>
+                )}
+                </View>
+                
               );
             } else {
-              cells.push(<Text key={playerIndex} style={styles.playerName}>
+              cells.push(
+                <View style={styles.nameContainer}>
+              <Text key={playerIndex} style={styles.playerName}>
                 - 
-              </Text>);
+              </Text>
+              </View>
+              );
             }
           }
           rows.push(
             
             <View key={i} style={styles.playersRow}>
               <Text style={styles.playerHeading}>Team {i + 1} {areWinners(item,i) ? "(Winners)" : ""}</Text>
+              
               {cells}
+              {item.inProgress && (
               <View style={
                 {
 
@@ -183,7 +219,8 @@ const CourtScreen = ({ navigation, queue }) => {
                   flexDirection:'row',
                   alignItems:'center',
                   justifyContent:'center',
-                  marginTop:7
+                  marginTop:'3%',
+                  
                 
               }
               }>
@@ -195,7 +232,10 @@ const CourtScreen = ({ navigation, queue }) => {
               value={areWinners(item,i)}
               />
               </View>
+              )}
+              
             </View>
+            
           );
         }
         return rows;
@@ -317,7 +357,7 @@ const CourtScreen = ({ navigation, queue }) => {
       flex: 1,
       flexDirection: 'row',
       justifyContent: 'space-between',
-      alignItems: 'center',
+      
       width:"100%",
       
       marginHorizontal:0,
@@ -331,28 +371,45 @@ const CourtScreen = ({ navigation, queue }) => {
       alignItems: 'center',
       
       
+      
     },
     playersRow: {
       flex:1,
       flexDirection:'column',
       alignItems:'center',
+      justifyContent:'flex-start',
+      height:'80%',
+      
       
     },
     playerCell: {
       flex: 1,
       margin: 4,
+      
     },
     playerName: {
       
-      fontSize: 18,
+      
+      fontSize: 20,
+      
+      
+      
+    },
+    nameContainer: {
+      flex:1,
+      flexDirection:'row',
+      alignItems:'center',
+      justifyContent:'space-evenly',
+      width:'90%',
       
     },
     playerHeading: {
-      fontSize:22,
+      fontSize:24,
       fontWeight:'bold',
+      marginBottom:'5%',
     },
     playerNameWinner: {
-      fontSize: 18,
+      fontSize: 20,
       fontWeight: 'bold',
       color: 'green',
     },
@@ -366,6 +423,16 @@ const CourtScreen = ({ navigation, queue }) => {
       alignItems: 'center',
       width: 30,
       height: 30,
+    },
+    substituteButton: {
+      backgroundColor: 'dodgerblue',
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: 100,
+      height: 25,
+      
+      
     },
     finishButton: {
       position: 'absolute',

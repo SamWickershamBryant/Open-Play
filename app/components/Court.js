@@ -2,7 +2,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export class Court {
-    constructor(name, players = [], inProgress = true) {
+    constructor(name, players = [], inProgress = false) {
         this.name = name;
         this.players = players
         this.inProgress = inProgress
@@ -41,7 +41,7 @@ export class Court {
         }
       }
 
-      
+
 
       static async getAll() {
         try {
