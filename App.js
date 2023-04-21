@@ -14,7 +14,7 @@ const Stack = createStackNavigator();
 export default function App() {
   
 
-  const {queue, enqueue, dequeue} = useQueue()
+  const {queue, enqueue, dequeue, exitQueue} = useQueue()
 
   
 
@@ -23,7 +23,7 @@ export default function App() {
       <NavigationContainer>
       <Stack.Navigator>
         <Stack.Screen name="Home">
-          {props => <HomeScreen {...props} queue={{queue,enqueue,dequeue}}/>}
+          {props => <HomeScreen {...props} queue={{queue,enqueue,dequeue,exitQueue}}/>}
         </Stack.Screen>
         <Stack.Screen name="Courts">
           {props => <CourtScreen {...props} queue={{queue,enqueue,dequeue}}/>}

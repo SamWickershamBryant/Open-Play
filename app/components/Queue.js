@@ -13,6 +13,9 @@ export const useQueue = () => {
       }
     }, [queue])
     
+    const exitQueue = useCallback((name) => {
+      setQueue(prevQueue => prevQueue.filter(item => item !== name));
+    }, []);
   
     const enqueue = useCallback((item) => {
       setQueue(prevQueue => [...prevQueue, item]);
@@ -36,5 +39,5 @@ export const useQueue = () => {
     }, [queue]);
     
   
-    return { queue, enqueue, dequeue };
+    return { queue, enqueue, dequeue, exitQueue };
   };

@@ -24,8 +24,8 @@ const styles = StyleSheet.create({
     backgroundColor: 'dodgerblue',
   },
   text: {
-    fontSize: 30,
-    lineHeight: 30,
+    fontSize: 40,
+    lineHeight: 40,
     fontWeight: 'bold',
     letterSpacing: 0.25,
     color: 'white',

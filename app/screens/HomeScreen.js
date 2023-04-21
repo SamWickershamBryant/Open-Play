@@ -1,15 +1,22 @@
 import React, {useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList } from 'react-native';
 import CourtScreen from './CourtScreen';
 import BigButton from '../components/BigButton';
 import Title from '../components/Title';
 import Title2 from '../components/Title2';
 import MainInput from '../components/MainInput';
 import { push, readAll, create } from '../components/Queue';
+import ScrollList from '../components/ScrollList';
+import Divider from '../components/Divider';
 
 
 const HomeScreen = ({ navigation, queue }) => {
     const [name, setName] = useState('');
+
+    const exitPlayer = (name) => {
+      queue.exitQueue(name)
+    }
+    
    
     return (
         
@@ -19,6 +26,7 @@ const HomeScreen = ({ navigation, queue }) => {
             
         }}>
             <Title title="Pickleball App"/>
+            
       <View style={styles.container}>
         
         <Title2 title="Join the next available game:"/>
@@ -46,7 +54,12 @@ const HomeScreen = ({ navigation, queue }) => {
             setName('')
         }}
         />
-        <Text>q:{queue.queue}</Text>
+        <Divider/>
+        <View style={styles.queue}>
+        <Text style={styles.queueHeader}>Next in Queue ({queue.queue.length})</Text>
+        
+        <ScrollList data={queue.queue} exit={exitPlayer}></ScrollList>
+        </View>
         
         
         
@@ -62,7 +75,7 @@ const HomeScreen = ({ navigation, queue }) => {
       
     );
   };
-  
+  const {width, height} = Dimensions.get('window')
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -72,6 +85,19 @@ const HomeScreen = ({ navigation, queue }) => {
       width:"100%",
       marginTop:20,
       
+    },
+    queue: {
+      flex:1,
+      width:'100%',
+      justifyContent:'space-between',
+      alignItems:'center',
+      marginTop:'2%',
+      
+      
+    },
+    queueHeader: {
+      fontSize:Math.min(width, height) * 0.06,
+      marginBottom:'2%',
     },
     footButton: {
         position:"absolute",

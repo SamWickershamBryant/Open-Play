@@ -1,10 +1,11 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { StyleSheet, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch, Dimensions } from 'react-native';
 import Title2 from '../components/Title2';
 import { useQueue } from '../components/Queue';
 import { Court } from '../components/Court';
+import HorizontalList from '../components/HorizontalList';
 
-
+const {width, height} = Dimensions.get('window')
 const CourtScreen = ({ navigation, queue }) => {
 
     const [courts, setCourts] = useState([])
@@ -88,6 +89,15 @@ const CourtScreen = ({ navigation, queue }) => {
     }
 
     const handleAddCourt = async () => {
+      if (courts.some(obj => obj.name === newCourtName)){
+        alert("This court name already exists")
+        setNewCourtName('')
+        return
+      }
+      if (newCourtName === ''){
+        alert("Please enter a court name")
+        return
+      }
       const court = new Court(newCourtName);
       const success = await court.save();
       if (success) {
@@ -197,8 +207,8 @@ const CourtScreen = ({ navigation, queue }) => {
               );
             } else {
               cells.push(
-                <View style={styles.nameContainer}>
-              <Text key={playerIndex} style={styles.playerName}>
+                <View key={playerIndex} style={styles.nameContainer}>
+              <Text  style={styles.playerName}>
                 - 
               </Text>
               </View>
@@ -274,19 +284,26 @@ const CourtScreen = ({ navigation, queue }) => {
     
     return (
       
-      <View style={styles.container}>
+      <SafeAreaView style={styles.container}>
         <Text style={styles.heading}>
         Available Courts ({courts.length})
       </Text>
         
+        <View style={styles.courtListContainer}>
       <FlatList
         data={courts}
         renderItem={renderCourt}
         keyExtractor={(item) => item.name}
-        numColumns={2}
+        key = {width < 768 ? 1 : 2}
+        numColumns={width < 768 ? 1 : 2}
         contentContainerStyle={styles.listContainer}
       />
+      </View>
 
+      <View style={styles.queueListContainer}>
+      <Text style={styles.heading}>Next in line ({queue.queue.length})</Text>
+      <HorizontalList data={queue.queue}/>
+      </View>
     
       
       <KeyboardAvoidingView 
@@ -301,20 +318,32 @@ const CourtScreen = ({ navigation, queue }) => {
       />
       <Button title="Add Court" onPress={handleAddCourt} />
       </KeyboardAvoidingView>
-      </View>
+      </SafeAreaView>
     );
   };
-
+  
   const styles = StyleSheet.create({
     container: {
+      
       flex: 1,
       padding: 16,
       backgroundColor: '#F5FCFF',
+      flexDirection:'column',
+    },
+    courtListContainer: {
+      height:'60%',
+      
+    },
+    queueListContainer: {
+      marginTop:'5%',
+     height:'15%',
+      
     },
     heading: {
-      fontSize: 32,
+      fontSize:Math.min(width, height) * 0.06,
       fontWeight: 'bold',
       marginBottom: 16,
+      padding:8,
     },
     input: {
       flex:1,
@@ -338,13 +367,13 @@ const CourtScreen = ({ navigation, queue }) => {
       margin: 8,
       minHeight: 250,
       minWidth: '45%',
-      maxWidth: '45%',
+      maxWidth: '95%',
       position: 'relative',
       alignItems:'center',
     },
     
     courtName: {
-      fontSize: 28,
+      fontSize: width * 0.03,
       fontWeight: 'bold',
       marginBottom: 0,
       borderBottomWidth: 1,
@@ -390,7 +419,7 @@ const CourtScreen = ({ navigation, queue }) => {
     playerName: {
       
       
-      fontSize: 20,
+      fontSize: Math.min(width, height) * 0.02,
       
       
       
@@ -402,14 +431,15 @@ const CourtScreen = ({ navigation, queue }) => {
       justifyContent:'space-evenly',
       width:'90%',
       
+      
     },
     playerHeading: {
-      fontSize:24,
+      fontSize:Math.min(width, height) * 0.025,
       fontWeight:'bold',
       marginBottom:'5%',
     },
     playerNameWinner: {
-      fontSize: 20,
+      fontSize: Math.min(width, height) * 0.02,
       fontWeight: 'bold',
       color: 'green',
     },
@@ -442,7 +472,7 @@ const CourtScreen = ({ navigation, queue }) => {
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: "25%",
+      width: width < 768 ? '30%' : width * 0.13,
       height: 30,
     },
     startButton: {
@@ -453,12 +483,12 @@ const CourtScreen = ({ navigation, queue }) => {
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: "25%",
+      width: width < 768 ? '30%' : width * 0.13,
       height: 30,
     },
     removeButtonText: {
       color: '#FFFFFF',
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: 'bold',
     },
     assignButton: {
@@ -469,19 +499,20 @@ const CourtScreen = ({ navigation, queue }) => {
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: "30%",
+      width: width < 768 ? '35%' : width * 0.14,
       height: 30,
     },
     buttonText: {
       color: '#FFFFFF',
-      fontSize: 14,
+      fontSize: 15,
       fontWeight: 'bold',
     },
     footer:{
-      
+      backgroundColor:"white",
       flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    height:height * 0.08,
 
     borderTopWidth: 1,
     borderTopColor: '#ccc',
@@ -491,7 +522,6 @@ const CourtScreen = ({ navigation, queue }) => {
       padding:16,
       position:"absolute",
       width:"100%",
-      
     },
   });
 
