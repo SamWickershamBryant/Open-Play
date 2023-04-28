@@ -306,7 +306,7 @@ const CourtScreen = ({ navigation, queue }) => {
       <SafeAreaView style={styles.container}>
         <KeyboardAvoidingView 
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? (width < 768 ? 135 : 94) : 0}
+      keyboardVerticalOffset={(width < 768 ? 135 : 94)}
       style = {styles.flexy}
       >
         <Text style={styles.heading}>
@@ -356,9 +356,12 @@ const CourtScreen = ({ navigation, queue }) => {
       padding: 16,
       backgroundColor: '#F5FCFF',
       flexDirection:'column',
+      width:'100%',
+     
     },
     courtListContainer: {
       height:'60%',
+      
       
     },
     Cheading:{
@@ -443,7 +446,7 @@ const CourtScreen = ({ navigation, queue }) => {
     playerName: {
       
       
-      fontSize: Math.min(width, height) * 0.02,
+      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 2 : 1),
       
       
       
@@ -458,12 +461,12 @@ const CourtScreen = ({ navigation, queue }) => {
       
     },
     playerHeading: {
-      fontSize:Math.min(width, height) * 0.025,
+      fontSize:Math.min(width, height) * 0.025 * (width < 768 ? 2 : 1),
       fontWeight:'bold',
       marginBottom:'5%',
     },
     playerNameWinner: {
-      fontSize: Math.min(width, height) * 0.02,
+      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 2 : 1),
       fontWeight: 'bold',
       color: '#B59410',
     },
@@ -518,7 +521,7 @@ const CourtScreen = ({ navigation, queue }) => {
     assignButtonG: {
       position: 'absolute',
       bottom: 8,
-      right: width < 768 ? '35%' : width * 0.155,
+      right: width < 768 ? '35%' : width * 0.152,
       backgroundColor: 'gold',
       borderRadius: 50,
       justifyContent: 'center',

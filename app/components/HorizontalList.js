@@ -20,7 +20,7 @@ export default function HorizontalList(props) {
         keyExtractor={(item, index) => index.toString()}
         contentContainerStyle={styles.listContainer}
         horizontal // Set the FlatList to display items horizontally
-        showsHorizontalScrollIndicator={false} // Hide the horizontal scroll indicator
+        showsHorizontalScrollIndicator={true} // Hide the horizontal scroll indicator
       />
     </View>
   );

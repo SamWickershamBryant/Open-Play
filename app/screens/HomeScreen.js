@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
 import CourtScreen from './CourtScreen';
 import BigButton from '../components/BigButton';
 import Title from '../components/Title';
@@ -52,7 +52,7 @@ const HomeScreen = ({ navigation, queue }) => {
         <Title2 title="Join the next available game:"/>
 
 
-
+        
         <MainInput placeholder="Name"
             val={name}
             onChange={setName} />
@@ -100,6 +100,7 @@ const HomeScreen = ({ navigation, queue }) => {
   };
   const {width, height} = Dimensions.get('window')
   const styles = StyleSheet.create({
+    
     container: {
       flex: 1,
       alignItems: 'center',
