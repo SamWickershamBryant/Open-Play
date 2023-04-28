@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, Pressable, Dimensions } from 'react-native';
+import { Text, StyleSheet, Dimensions } from 'react-native';
 
 export default function Title2(props) {
   const { title = 'This is a title' } = props;

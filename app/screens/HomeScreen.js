@@ -1,11 +1,11 @@
-import React, {useState, useEffect} from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard, KeyboardAvoidingView } from 'react-native';
-import CourtScreen from './CourtScreen';
+import React, {useState} from 'react';
+import { StyleSheet, Text, View, SafeAreaView, Dimensions, Keyboard } from 'react-native';
+
 import BigButton from '../components/BigButton';
 import Title from '../components/Title';
 import Title2 from '../components/Title2';
 import MainInput from '../components/MainInput';
-import { push, readAll, create } from '../components/Queue';
+
 import ScrollList from '../components/ScrollList';
 import Divider from '../components/Divider';
 import { Court } from '../components/Court';
@@ -15,7 +15,7 @@ import { Court } from '../components/Court';
 const HomeScreen = ({ navigation, queue }) => {
     const [name, setName] = useState('');
 
-    const [courtPlayers, setCourtPlayers] = useState([])
+   
 
     const exitPlayer = (name) => {
       queue.exitQueue(name)

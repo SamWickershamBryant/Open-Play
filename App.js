@@ -1,11 +1,11 @@
 import 'react-native-gesture-handler';
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View, Image, TouchableHighlight, Button, } from 'react-native';
+
+import { StyleSheet } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { createStackNavigator } from '@react-navigation/stack';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import HomeScreen from './app/screens/HomeScreen';
@@ -46,13 +46,4 @@ export default function App() {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: 'purple',
-    alignItems: 'center',
-    justifyContent: 'center',
-    //flexDirection:"row",
-    
-  },
-});
+

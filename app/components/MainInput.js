@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, View, StyleSheet, TextInput, Dimensions, KeyboardAvoidingView } from 'react-native';
+import { StyleSheet, TextInput, Dimensions, KeyboardAvoidingView } from 'react-native';
 
 export default function MainInput(props) {
   const { placeholder = 'Enter something here', val, onChange } = props;

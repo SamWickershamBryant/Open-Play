@@ -1,7 +1,7 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect } from 'react';
 import { StyleSheet, SafeAreaView, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch, Dimensions, Keyboard } from 'react-native';
-import Title2 from '../components/Title2';
-import { useQueue } from '../components/Queue';
+
+
 import { Court } from '../components/Court';
 import HorizontalList from '../components/HorizontalList';
 
