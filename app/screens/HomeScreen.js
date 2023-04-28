@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList } from 'react-native';
+import React, {useState, useEffect} from 'react';
+import { StyleSheet, Text, View, ScrollView, SafeAreaView, Button, Dimensions, FlatList, TouchableWithoutFeedback, Keyboard } from 'react-native';
 import CourtScreen from './CourtScreen';
 import BigButton from '../components/BigButton';
 import Title from '../components/Title';
@@ -8,23 +8,43 @@ import MainInput from '../components/MainInput';
 import { push, readAll, create } from '../components/Queue';
 import ScrollList from '../components/ScrollList';
 import Divider from '../components/Divider';
+import { Court } from '../components/Court';
+
 
 
 const HomeScreen = ({ navigation, queue }) => {
     const [name, setName] = useState('');
 
+    const [courtPlayers, setCourtPlayers] = useState([])
+
     const exitPlayer = (name) => {
       queue.exitQueue(name)
     }
-    
+
+    const plyrInCourts = async (name) => {
+      const courts = await Court.getAll()
+      var players = []
+        for (c in courts){
+          
+          players = players.concat(courts[c].players.map((p) => p.name))
+        }
+        return players.includes(name)
+    }
+
    
+    
+    
     return (
+        
         
         <SafeAreaView style={{
             flex:1,
             alignItems:'center',
             
+            
         }}>
+          
+          
             <Title title="Pickleball App"/>
             
       <View style={styles.container}>
@@ -39,26 +59,31 @@ const HomeScreen = ({ navigation, queue }) => {
         
         <BigButton
           title="Join the queue"
-          onPress={() => {
+          onPress={ async () => {
             console.log(name)
             if (name == ''){
                 alert("Please enter your name first.")
                 return
             }
-            if (queue.queue.includes(name)){
+            if (queue.queue.some((obj) => obj.name === name)){
               alert("This name is already in the queue, try adding your last initial.")
               return
             }
-            queue.enqueue(name)
+            if (await plyrInCourts(name)){
+              alert("This name is already in a court, try adding your last initial.")
+              return
+            }
+            queue.enqueue({name:name, rank:0})
             //alert("You have been added, " + name + ". Please wait to be assigned to the next free court.")
             setName('')
+            Keyboard.dismiss()
         }}
         />
         <Divider/>
         <View style={styles.queue}>
         <Text style={styles.queueHeader}>Next in Queue ({queue.queue.length})</Text>
         
-        <ScrollList data={queue.queue} exit={exitPlayer}></ScrollList>
+        <ScrollList data={queue.queue.map((obj) => obj.name)} exit={exitPlayer}></ScrollList>
         </View>
         
         
@@ -66,12 +91,10 @@ const HomeScreen = ({ navigation, queue }) => {
         
         
       </View>
-      <View style={styles.footButton}>
-      <Button title="See courts >"
-        onPress={() => navigation.navigate("Courts")}
-        />
-      </View>
+      
       </SafeAreaView>
+      
+      
       
     );
   };

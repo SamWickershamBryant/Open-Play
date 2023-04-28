@@ -10,6 +10,7 @@ export default function MainInput(props) {
         onChangeText={onChange}
         value={val}
         placeholder={placeholder}
+        onTouchStart={() => false}
     />
 
   );

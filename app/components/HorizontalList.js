@@ -7,7 +7,7 @@ export default function HorizontalList(props) {
   const renderItem = ({ item }) => {
     return (
       <View style={styles.itemContainer}>
-        <Text style={styles.item}>{item}</Text>
+        <Text style={item.rank == 0 ? styles.item : styles.itemG}>{item.name}</Text>
       </View>
     );
   };
@@ -38,6 +38,12 @@ const styles = StyleSheet.create({
   item: {
     padding: width * 0.02,
     
+    fontSize: height * 0.02,
+    width: 'auto', // Set the width to auto to adjust based on the item's content
+  },
+  itemG: {
+    padding: width * 0.02,
+    color:'gold',
     fontSize: height * 0.02,
     width: 'auto', // Set the width to auto to adjust based on the item's content
   },

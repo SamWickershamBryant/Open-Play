@@ -20,5 +20,6 @@ const styles = StyleSheet.create({
     paddingBottom: "2%",
     paddingHorizontal: 25,
     color: 'dodgerblue',
+    alignSelf:'center'
   },
 });

@@ -1,9 +1,16 @@
 import React, {useState, useEffect, useCallback} from 'react';
-import { StyleSheet, SafeAreaView, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch, Dimensions } from 'react-native';
+import { StyleSheet, SafeAreaView, Text, View, FlatList, KeyboardAvoidingView, TouchableOpacity, TextInput, Button, Switch, Dimensions, Keyboard } from 'react-native';
 import Title2 from '../components/Title2';
 import { useQueue } from '../components/Queue';
 import { Court } from '../components/Court';
 import HorizontalList from '../components/HorizontalList';
+
+/*
+2 separate queues, gold and silver.
+winners go to gold queue and losers go to silver
+assign gold and assign silver buttons to assign from different courts
+after assign mix up the teams.
+*/
 
 const {width, height} = Dimensions.get('window')
 const CourtScreen = ({ navigation, queue }) => {
@@ -20,7 +27,7 @@ const CourtScreen = ({ navigation, queue }) => {
       console.log("CHECK")
     }, [])
 
-    const assignPlayers = async (cour) => {
+    const assignPlayers = async (cour, rank=0) => {
       console.log(cour)
       const availablePlayers = 4 - cour.players.length;
       if (cour.players.length >= 4) {
@@ -34,11 +41,21 @@ const CourtScreen = ({ navigation, queue }) => {
     
       let updatedPlayers = cour.players;
       
-      var newPlayers = queue.dequeue(availablePlayers)
+      var newPlayers = queue.dequeue(availablePlayers, rank).map((obj) => obj.name)
       console.log(newPlayers)
       for (var i in newPlayers){
         updatedPlayers.push({name:newPlayers[i],winner:false})
       }
+      const scramblePlayers = (players) => {
+        if (players.length !== 4) {
+          console.error('The scramblePlayers function requires an array of 4 players');
+          return players;
+        }
+      
+        return [players[0], players[2], players[1], players[3]];
+      };
+      updatedPlayers = scramblePlayers(updatedPlayers)
+
     
       var updatedCourt = cour
       updatedCourt.players = updatedPlayers
@@ -61,7 +78,7 @@ const CourtScreen = ({ navigation, queue }) => {
       }
     
       const playerToRemove = cour.players[playerIndex];
-      queue.enqueue(playerToRemove.name);
+      queue.enqueue({name:playerToRemove.name,rank:0});
     
       var updatedCourt = cour//{ ...cour, players: cour.players.filter((_, index) => index !== playerIndex) };
       updatedCourt.players = cour.players.filter((_, index) => index !== playerIndex)
@@ -98,6 +115,7 @@ const CourtScreen = ({ navigation, queue }) => {
         alert("Please enter a court name")
         return
       }
+      Keyboard.dismiss()
       const court = new Court(newCourtName);
       const success = await court.save();
       if (success) {
@@ -119,15 +137,13 @@ const CourtScreen = ({ navigation, queue }) => {
       for (let index = court.players.length - 1; index >= 0; index--){
         console.log(index)
         let player = court.players[index]
-        if (!player.winner) {
-          // Not a winner, remove and add back to queue...
+        //HANDLE QUEUE MNGMT BASED ON WIN
+        
           const rName = player.name
           
           court.removePlayer(rName)
-          queue.enqueue(rName)
-        } else{
-          player.winner = false
-        }
+          queue.enqueue({name:rName, rank:player.winner ? 1 : 0})
+        
 
       }
       court.inProgress = false
@@ -199,7 +215,7 @@ const CourtScreen = ({ navigation, queue }) => {
                 </Text>
                 {!item.inProgress && (
                   <TouchableOpacity style={styles.substituteButton} onPress={() => substitutePlayer(item, playerIndex)}>
-                    <Text style={styles.buttonText}>Substitute</Text>
+                    <Text style={styles.buttonText}>-</Text>
                   </TouchableOpacity>
                 )}
                 </View>
@@ -218,7 +234,7 @@ const CourtScreen = ({ navigation, queue }) => {
           rows.push(
             
             <View key={i} style={styles.playersRow}>
-              <Text style={styles.playerHeading}>Team {i + 1} {areWinners(item,i) ? "(Winners)" : ""}</Text>
+              <Text style={styles.playerHeading}>Team {i + 1} {areWinners(item,i) ? "(Gold)" : ""}</Text>
               
               {cells}
               {item.inProgress && (
@@ -267,8 +283,11 @@ const CourtScreen = ({ navigation, queue }) => {
           <Text style={styles.removeButtonText}>Finish Game</Text>
           </TouchableOpacity> :
           <>
-          <TouchableOpacity style={styles.assignButton} onPress={() => assignPlayers(item)}>
-          <Text style={styles.buttonText}>Assign Players</Text>
+          <TouchableOpacity style={styles.assignButtonG} onPress={() => assignPlayers(item,1)}>
+          <Text style={styles.buttonText}>Assign Gold</Text>
+        </TouchableOpacity>
+          <TouchableOpacity style={styles.assignButtonS} onPress={() => assignPlayers(item,0)}>
+          <Text style={styles.buttonText}>Assign Silver</Text>
         </TouchableOpacity>
           <TouchableOpacity style={styles.startButton} onPress={() => handleCourtStart(item)}>
           <Text style={styles.removeButtonText}>Start Game</Text>
@@ -285,10 +304,15 @@ const CourtScreen = ({ navigation, queue }) => {
     return (
       
       <SafeAreaView style={styles.container}>
+        <KeyboardAvoidingView 
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? (width < 768 ? 135 : 94) : 0}
+      style = {styles.flexy}
+      >
         <Text style={styles.heading}>
         Available Courts ({courts.length})
       </Text>
-        
+      
         <View style={styles.courtListContainer}>
       <FlatList
         data={courts}
@@ -297,19 +321,19 @@ const CourtScreen = ({ navigation, queue }) => {
         key = {width < 768 ? 1 : 2}
         numColumns={width < 768 ? 1 : 2}
         contentContainerStyle={styles.listContainer}
+        
       />
       </View>
 
       <View style={styles.queueListContainer}>
-      <Text style={styles.heading}>Next in line ({queue.queue.length})</Text>
+      <Text style={styles.Cheading}>Next in line ({queue.queue.length})</Text>
       <HorizontalList data={queue.queue}/>
       </View>
     
       
-      <KeyboardAvoidingView 
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 76 : 0}
-      style={styles.footer}>
+      
+      
+        <View style={styles.inputContainer}>
       <TextInput
       style={styles.input}
       value={newCourtName}
@@ -317,6 +341,9 @@ const CourtScreen = ({ navigation, queue }) => {
       placeholder="Enter court name"
       />
       <Button title="Add Court" onPress={handleAddCourt} />
+      </View>
+      
+      
       </KeyboardAvoidingView>
       </SafeAreaView>
     );
@@ -334,6 +361,11 @@ const CourtScreen = ({ navigation, queue }) => {
       height:'60%',
       
     },
+    Cheading:{
+      fontSize:Math.min(width, height) * 0.06,
+      fontWeight: 'bold',
+      padding:8,
+    },
     queueListContainer: {
       marginTop:'5%',
      height:'15%',
@@ -342,21 +374,13 @@ const CourtScreen = ({ navigation, queue }) => {
     heading: {
       fontSize:Math.min(width, height) * 0.06,
       fontWeight: 'bold',
-      marginBottom: 16,
+      marginBottom:16,
       padding:8,
     },
-    input: {
-      flex:1,
-      borderWidth: 1,
-      borderColor: '#ccc',
-      padding: 8,
-      marginRight: 16,
     
-      width:"75%",
-     
-    },
     listContainer: {
-      paddingBottom: 64, // add some padding to bottom to prevent last item from being obscured by bottom tab bar
+      paddingBottom: 64,
+       // add some padding to bottom to prevent last item from being obscured by bottom tab bar
     },
     court: {
       
@@ -367,7 +391,7 @@ const CourtScreen = ({ navigation, queue }) => {
       margin: 8,
       minHeight: 250,
       minWidth: '45%',
-      maxWidth: '95%',
+      maxWidth: width < 768 ? '95%' : '45%',
       position: 'relative',
       alignItems:'center',
     },
@@ -428,7 +452,7 @@ const CourtScreen = ({ navigation, queue }) => {
       flex:1,
       flexDirection:'row',
       alignItems:'center',
-      justifyContent:'space-evenly',
+      justifyContent:'space-between',
       width:'90%',
       
       
@@ -441,7 +465,7 @@ const CourtScreen = ({ navigation, queue }) => {
     playerNameWinner: {
       fontSize: Math.min(width, height) * 0.02,
       fontWeight: 'bold',
-      color: 'green',
+      color: '#B59410',
     },
     removeButton: {
       position: 'absolute',
@@ -455,11 +479,11 @@ const CourtScreen = ({ navigation, queue }) => {
       height: 30,
     },
     substituteButton: {
-      backgroundColor: 'dodgerblue',
+      backgroundColor: '#d11a2a',
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: 100,
+      width: 25,
       height: 25,
       
       
@@ -491,15 +515,26 @@ const CourtScreen = ({ navigation, queue }) => {
       fontSize: 15,
       fontWeight: 'bold',
     },
-    assignButton: {
+    assignButtonG: {
       position: 'absolute',
       bottom: 8,
-      right: 8,
-      backgroundColor: 'orange',
+      right: width < 768 ? '35%' : width * 0.155,
+      backgroundColor: 'gold',
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: width < 768 ? '35%' : width * 0.14,
+      width: width < 768 ? '30%' : width * 0.14,
+      height: 30,
+    },
+    assignButtonS: {
+      position: 'absolute',
+      bottom: 8,
+      right: 8,
+      backgroundColor: 'silver',
+      borderRadius: 50,
+      justifyContent: 'center',
+      alignItems: 'center',
+      width: width < 768 ? '30%' : width * 0.14,
       height: 30,
     },
     buttonText: {
@@ -507,22 +542,36 @@ const CourtScreen = ({ navigation, queue }) => {
       fontSize: 15,
       fontWeight: 'bold',
     },
-    footer:{
-      backgroundColor:"white",
+    inputContainer: {
       flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    height:height * 0.08,
-
+    paddingHorizontal: 16,
+    backgroundColor: 'white',
     borderTopWidth: 1,
     borderTopColor: '#ccc',
-      bottom:25,
-      left:0,
-      right:0,
-      padding:16,
-      position:"absolute",
+    paddingBottom: 8,
+    paddingTop:10,
+    
+    },
+    input: {
+      flex: 1,
+    borderWidth: 1,
+    borderColor: 'grey',
+    borderRadius: 4,
+    paddingHorizontal: 10,
+    marginRight: 10,
+    height:40,
+    },
+    footer:{
+      height:'100%',
       width:"100%",
     },
+    flexy:{
+      flex:1,
+      justifyContent:'space-between',
+    },
+    
   });
 
 export default CourtScreen;
