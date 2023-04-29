@@ -1,10 +1,11 @@
 {
   "expo": {
-    "name": "demoski",
-    "slug": "demoski",
+    "name": "Pickleball App",
+    "slug": "pickleball-app",
+    "description": "This is an app that manages courts to ensure all players get to play.",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/paddleicon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -15,16 +16,24 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.sambryant.pickleballapp"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.pickleballapp.pickleballapp"
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d432988c-e5e9-4c78-88f5-86a08ebfd323"
+      }
+    },
+    "owner": "sambryant"
   }
 }

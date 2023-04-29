@@ -24,8 +24,9 @@ export default function App() {
   
 
   return (
-    <SafeAreaProvider>
+    
       <NavigationContainer>
+        <SafeAreaProvider>
         <SafeAreaView style={{ flex: 1 }}>
       <Tab.Navigator
       >
@@ -39,8 +40,9 @@ export default function App() {
         </Tab.Screen>
       </Tab.Navigator>
       </SafeAreaView>
-      </NavigationContainer>
       </SafeAreaProvider>
+      </NavigationContainer>
+      
       
     
   );
