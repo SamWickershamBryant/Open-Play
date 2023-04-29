@@ -18,6 +18,8 @@ const CourtScreen = ({ navigation, queue }) => {
     const [courts, setCourts] = useState([])
     const [newCourtName, setNewCourtName] = useState('')
 
+    const [assignRank, setRank] = useState(0)
+
     useEffect(() => {
       const loadCourts = async () => {
         const courts = await Court.getAll();
@@ -27,8 +29,11 @@ const CourtScreen = ({ navigation, queue }) => {
       console.log("CHECK")
     }, [])
 
-    const assignPlayers = async (cour, rank=0) => {
+    const assignPlayers = async (cour) => {
       console.log(cour)
+      let rank = assignRank
+      setRank(rank <= 0 ? 1 : 0)
+      console.log("rank " + rank)
       const availablePlayers = 4 - cour.players.length;
       if (cour.players.length >= 4) {
         alert("This court is already full.");
@@ -250,7 +255,7 @@ const CourtScreen = ({ navigation, queue }) => {
                 
               }
               }>
-              <Text>winner: </Text><Switch
+              <Text style={{fontWeight:"bold"}}>Gold: </Text><Switch
               trackColor={{false: '#767577', true: '#81b0ff'}}
               thumbColor={true ? '#f5dd4b' : '#f4f3f4'}
               ios_backgroundColor="#3e3e3e"
@@ -283,15 +288,15 @@ const CourtScreen = ({ navigation, queue }) => {
           <Text style={styles.removeButtonText}>Finish Game</Text>
           </TouchableOpacity> :
           <>
-          <TouchableOpacity style={styles.assignButtonG} onPress={() => assignPlayers(item,1)}>
-          <Text style={styles.buttonText}>Assign Gold</Text>
+          
+          <TouchableOpacity style={assignRank == 0 ? styles.assignButtonS : styles.assignButtonG} onPress={() => assignPlayers(item)}>
+          <Text style={styles.buttonText}>Assign Players</Text>
         </TouchableOpacity>
-          <TouchableOpacity style={styles.assignButtonS} onPress={() => assignPlayers(item,0)}>
-          <Text style={styles.buttonText}>Assign Silver</Text>
-        </TouchableOpacity>
+        {item.players.length >= 4 &&
           <TouchableOpacity style={styles.startButton} onPress={() => handleCourtStart(item)}>
           <Text style={styles.removeButtonText}>Start Game</Text>
           </TouchableOpacity>
+        }
           </>
         }
           
@@ -446,7 +451,7 @@ const CourtScreen = ({ navigation, queue }) => {
     playerName: {
       
       
-      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 2 : 1),
+      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 1.7 : 1),
       
       
       
@@ -461,12 +466,12 @@ const CourtScreen = ({ navigation, queue }) => {
       
     },
     playerHeading: {
-      fontSize:Math.min(width, height) * 0.025 * (width < 768 ? 2 : 1),
+      fontSize:Math.min(width, height) * 0.025 * (width < 768 ? 1.7 : 1),
       fontWeight:'bold',
       marginBottom:'5%',
     },
     playerNameWinner: {
-      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 2 : 1),
+      fontSize: Math.min(width, height) * 0.02 * (width < 768 ? 1.7 : 1),
       fontWeight: 'bold',
       color: '#B59410',
     },
@@ -521,12 +526,12 @@ const CourtScreen = ({ navigation, queue }) => {
     assignButtonG: {
       position: 'absolute',
       bottom: 8,
-      right: width < 768 ? '35%' : width * 0.152,
+      right: 8,
       backgroundColor: 'gold',
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: width < 768 ? '30%' : width * 0.14,
+      width: width < 768 ? '40%' : width * 0.17,
       height: 30,
     },
     assignButtonS: {
@@ -537,7 +542,7 @@ const CourtScreen = ({ navigation, queue }) => {
       borderRadius: 50,
       justifyContent: 'center',
       alignItems: 'center',
-      width: width < 768 ? '30%' : width * 0.14,
+      width: width < 768 ? '40%' : width * 0.17,
       height: 30,
     },
     buttonText: {

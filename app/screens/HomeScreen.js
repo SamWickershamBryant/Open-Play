@@ -45,7 +45,7 @@ const HomeScreen = ({ navigation, queue }) => {
         }}>
           
           
-            <Title title="Pickleball App"/>
+            <Title title="Open Play"/>
             
       <View style={styles.container}>
         

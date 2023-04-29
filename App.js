@@ -30,7 +30,7 @@ export default function App() {
         <SafeAreaView style={{ flex: 1 }}>
       <Tab.Navigator
       >
-        <Tab.Screen name="Home"
+        <Tab.Screen name="Players"
           children = {props => <HomeScreen {...props} queue={{queue,enqueue,dequeue,exitQueue}}/>}
           >
         </Tab.Screen>
